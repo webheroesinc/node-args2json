@@ -6,12 +6,12 @@ const log				= require('@whi/stdlog')(path.basename( __filename ), {
 const assert					= require('assert');
 const expect					= require('chai').expect;
 
-const parse_parameters				= require('../index.js');
+const args2json					= require('../index.js');
 
-describe("parse_parameters", () => {
+describe("args2json", () => {
 
     it("should parse string", async () => {
-	const args				= parse_parameters( [
+	const args				= args2json( [
 	    'something="wormhole=time travel"',
 	]);
 	log.silly("Parameters: %s", args );
@@ -21,7 +21,7 @@ describe("parse_parameters", () => {
     });
 
     it("should parse integer", async () => {
-	const args				= parse_parameters( [
+	const args				= args2json( [
 	    'something=1',
 	]);
 	log.silly("Parameters: %s", args );
@@ -31,7 +31,7 @@ describe("parse_parameters", () => {
     });
     
     it("should parse object", async () => {
-	const args				= parse_parameters( [
+	const args				= args2json( [
 	    'something.id=1',
 	    'something.name="Arnold"',
 	]);
@@ -43,7 +43,7 @@ describe("parse_parameters", () => {
     });
     
     it("should parse array", async () => {
-	const args				= parse_parameters( [
+	const args				= args2json( [
 	    'something[0].id=1',
 	    'something[0].name="Arnold"',
 	    'something[1].id=2',
@@ -58,20 +58,48 @@ describe("parse_parameters", () => {
 	expect( args.something[1].name	).to.equal( "Dwayne" );
     });
     
+    it("should create base context as array", async () => {
+	const args				= args2json( [
+	    '[0].id=1',
+	    '[0].name="Arnold"',
+	    '[1].id=2',
+	    '[1].name="Dwayne"',
+	]);
+	log.silly("Parameters: %s", args );
+
+	expect( args		).to.be.an('array');
+	expect( args[0].id	).to.equal( 1 );
+	expect( args[0].name	).to.equal( "Arnold" );
+	expect( args[1].id	).to.equal( 2 );
+	expect( args[1].name	).to.equal( "Dwayne" );
+    });
+    
     it("should not overwrite a created object", async () => {
-	expect( () => parse_parameters( [
+	expect( () => args2json( [
 	    'something.id=1',
 	    'something.name="Arnold"',
 	    'something=false',
 	])).to.throw(/Cannot overwrite/);
 	
-	expect( () => parse_parameters( [
+	expect( () => args2json( [
 	    'something.id=1',
 	    'something.name="Arnold"',
 	    'something.parents[0]="George"',
 	    'something.parents[1]="Betty"',
 	    'something[0]=true',
 	])).to.throw(/Misconfiguration/);
+	
+	expect( () => args2json( [
+	    'something.id=1',
+	    'something.name="Arnold"',
+	    '[0]=true',
+	])).to.throw(/Misconfiguration, cannot treat/);
+	
+	expect( () => args2json( [
+	    '[0]=true',
+	    'something.id=1',
+	    'something.name="Arnold"',
+	])).to.throw(/Misconfiguration, cannot treat/);
     });
     
 });

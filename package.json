@@ -1,10 +1,15 @@
 {
   "name": "args2json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Define JSON using a list of strings (eg. command line arguments)",
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive ./tests/"
+  },
+  "homepage": "https://github.com/webheroesinc/node-args2json",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/webheroesinc/node-args2json"
   },
   "author": "Matthew Brisebois",
   "license": "ISC",

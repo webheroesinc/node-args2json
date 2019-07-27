@@ -5,7 +5,7 @@ const log				= require('@whi/stdlog')(path.basename( __filename ), {
 
 const sprintf				= require('sprintf-js').sprintf;
 
-function parse_parameters ( params ) {
+function args2json ( params ) {
     const args				= {};
     
     for ( let param of params ) {
@@ -45,6 +45,14 @@ function parse_parameters ( params ) {
 		log.silly("New array ctx for: %s", k );
 		ctx		= ctx[k]	= ctx[k] || [];
 
+		// If assigning an array item to the base ctx, check if the base context was already
+		// treated as an object and throw if true.
+		if ( n === 0 && k === '' && (
+		    args[''] === undefined || Object.keys( args ).length > 1
+		)) {
+		    throw new Error(sprintf("Misconfiguration, cannot treat base as array because base was already assigned as an object"));
+		}
+
 		// Verify that ctx is an array
 		if ( !Array.isArray( ctx ) )
 		    throw new Error(sprintf("Misconfiguration, expected '%s' for key '%s' to be an array", typeof ctx, k ));
@@ -63,6 +71,12 @@ function parse_parameters ( params ) {
 		// This is not the final value, so we will use ore create an object here.
 		log.silly("New object ctx for: %s", k );
 		ctx		= ctx[k]	= ctx[k] || {};
+
+		// If assigning an object item to the base ctx, check if the base context was
+		// already treated as an array and throw if true.
+		if ( n === 0 && Array.isArray( args[''] ) ) {
+		    throw new Error(sprintf("Misconfiguration, cannot treat base as object because base was already assigned as an array"));
+		}
 
 		// Verify that ctx is an object
 		if ( ctx === null || typeof ctx !== 'object' )
@@ -86,7 +100,8 @@ function parse_parameters ( params ) {
 	    throw err;
 	}
     }
-    return args;
+
+    return Array.isArray( args[''] ) ? args[''] : args;
 }
 
-module.exports = parse_parameters;
+module.exports = args2json;
