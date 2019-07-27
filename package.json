@@ -1,0 +1,19 @@
+{
+  "name": "args2json",
+  "version": "0.0.1",
+  "description": "Define JSON using a list of strings (eg. command line arguments)",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive ./tests/"
+  },
+  "author": "Matthew Brisebois",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0"
+  },
+  "dependencies": {
+    "@whi/stdlog": "^0.2.1",
+    "sprintf-js": "^1.1.2"
+  }
+}
